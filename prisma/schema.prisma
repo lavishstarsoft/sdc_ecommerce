@@ -1,0 +1,217 @@
+datasource db {
+  provider  = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Banner {
+  id           String   @id @default(uuid())
+  imageUrl     String   @map("image_url")
+  title        String?
+  linkUrl      String?  @map("link_url")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("banners")
+}
+
+model CategoryGrid {
+  id           String   @id @default(uuid())
+  title        String
+  linkText     String   @default("Explore all") @map("link_text")
+  items        Json     // Stores [{ name: string, image: string }]
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("category_grids")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  price        Float
+  mrp          Float?
+  imageUrl     String   @map("image_url")
+  category     String
+  brand        String?  @default("Saidurga Premium")
+  warranty     String?  @default("1 Year SDC Store warranty card")
+  dimensions   String?  @default("45 x 30 x 12 cm")
+  weight       String?  @default("1.8 Kilograms")
+  specsLayout  String?  @default("TABLE") @map("specs_layout")
+  specsContent String?  @map("specs_content")
+  imageUrl2    String?  @map("image_url_2")
+  imageUrl3    String?  @map("image_url_3")
+  galleryImages String[] @default([]) @map("gallery_images")
+  offers        Json?    @map("offers")
+  freeDelivery  Boolean  @default(true) @map("free_delivery")
+  deliveryCharge Float   @default(0) @map("delivery_charge")
+  deliverySlabs Json?    @map("delivery_slabs")
+  returnPolicy  String?  @default("7 Days Return") @map("return_policy")
+  allowCOD     Boolean  @default(true) @map("allow_cod")
+  allowOnline  Boolean  @default(true) @map("allow_online")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  wishlists    WishlistItem[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+
+  @@map("products")
+}
+
+model Carousel {
+  id           String   @id @default(uuid())
+  title        String
+  productIds   String[] @map("product_ids")
+  displayOrder Int      @default(0) @map("display_order")
+  layout       String   @default("CAROUSEL") // "CAROUSEL" or "GRID"
+  sourceType   String   @default("MANUAL") @map("source_type") // "MANUAL", "BEST_SELLERS", "OFFERS", "CATEGORY"
+  sourceValue  String?  @map("source_value") // e.g. category name
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("carousels")
+}
+
+model Setting {
+  id                    String   @id @default("default")
+  siteName              String   @default("Saidurga Computers") @map("site_name")
+  logoUrl               String?  @map("logo_url")
+  metaDescription       String?  @default("Your trusted partner for all computer sales, services, and accessories. Providing premium tech solutions with dedicated support for over a decade.") @map("meta_description")
+  googleAnalyticsId     String?  @map("google_analytics_id")
+  googleSearchConsoleId String?  @map("google_search_console_id")
+  googleAdsId           String?  @map("google_ads_id")
+  newsletterTitle       String?  @default("Subscribe to our newsletter to get updates to our latest collections") @map("newsletter_title")
+  newsletterSubtitle    String?  @default("Get 20% off on your first order just by subscribing to our newsletter") @map("newsletter_subtitle")
+  newsletterPlaceholder String?  @default("Enter your email") @map("newsletter_placeholder")
+  newsletterButtonText  String?  @default("Subscribe") @map("newsletter_button_text")
+  newsletterUnsubscribe String?  @default("You will be able to unsubscribe at any time.") @map("newsletter_unsubscribe")
+  newsletterPrivacyText String?  @default("Read our privacy policy here") @map("newsletter_privacy_text")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  wishlist  WishlistItem[]
+  cartItems CartItem[]
+  addresses Address[]
+  orders    Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  showInMenu   Boolean  @default(false) @map("show_in_menu")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model SidebarFilter {
+  id           String   @id @default(uuid())
+  filterType   String   @map("filter_type") // BRAND | WARRANTY | PRICE_RANGE | DELIVERY | SORT
+  label        String
+  config       Json?    // Options/values specific to filter type
+  isEnabled    Boolean  @default(true) @map("is_enabled")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("sidebar_filters")
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  phone     String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  landmark  String?
+  country   String   @default("India")
+  type      String   @default("Home") // HOME, WORK
+  isDefault Boolean  @default(false) @map("is_default")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String      @map("user_id")
+  addressId     String      @map("address_id")
+  totalAmount   Float       @map("total_amount")
+  status        String      @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  paymentMethod String      @default("COD") @map("payment_method")
+  paymentStatus String      @default("PENDING") @map("payment_status")
+  shippingLink  String?     @map("shipping_link")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address       Address     @relation(fields: [addressId], references: [id])
+  items         OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  productId String   @map("product_id")
+  quantity  Int
+  price     Float
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+

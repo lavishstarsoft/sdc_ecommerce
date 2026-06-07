@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Double range slider thumb styling */
+input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto !important;
+  width: 18px;
+  height: 18px;
+  border-radius: 50% !important;
+  background: #5ab946;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+input[type="range"]::-moz-range-thumb {
+  pointer-events: auto !important;
+  width: 18px;
+  height: 18px;
+  border-radius: 50% !important;
+  background: #5ab946;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.25);
+}
+
+/* Force 5px border-radius globally on buttons, inputs, selects, textareas, cards, and custom shapes */
+button,
+input:not([type="range"]),
+select,
+textarea,
+.button,
+[class*="rounded-sm"],
+[class*="rounded-md"],
+[class*="rounded-lg"],
+[class*="rounded-xl"],
+[class*="rounded-2xl"],
+[class*="rounded-3xl"],
+[class*="rounded-4xl"],
+[class*="rounded-full"]:not(.animate-spin),
+[class*="rounded-["] {
+  border-radius: 5px !important;
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "Amazon Clone",
+  "description": "A responsive e-commerce application inspired by Amazon.in.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
