@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, saveProduct, deleteProduct } from '@/lib/storeService';
+import { getProducts, saveProduct, deleteProduct } from '@/lib/storeService.server';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { isPrismaConfigured, getProducts } from '@/lib/storeService';
+import { isPrismaConfigured, getProducts } from '@/lib/storeService.server';
 
 export async function GET(
   _request: NextRequest,

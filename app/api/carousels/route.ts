@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCarousels, saveCarousel, deleteCarousel } from '@/lib/storeService';
+import { getCarousels, saveCarousel, deleteCarousel } from '@/lib/storeService.server';
 
 export const dynamic = 'force-dynamic';
 

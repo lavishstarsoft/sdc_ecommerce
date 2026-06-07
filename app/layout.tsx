@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getSettings } from '@/lib/storeService';
+import { getSettings } from '@/lib/storeService.server';
 import Script from 'next/script';
 import './globals.css';
 

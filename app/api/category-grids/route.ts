@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCategoryGrids, saveCategoryGrid, deleteCategoryGrid } from '@/lib/storeService';
+import { getCategoryGrids, saveCategoryGrid, deleteCategoryGrid } from '@/lib/storeService.server';
 
 export const dynamic = 'force-dynamic';
 

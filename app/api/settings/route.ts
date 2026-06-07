@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSettings, saveSettings } from '@/lib/storeService';
+import { getSettings, saveSettings } from '@/lib/storeService.server';
 
 export const dynamic = 'force-dynamic';
 

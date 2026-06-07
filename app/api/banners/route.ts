@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBanners, saveBanner, deleteBanner } from '@/lib/storeService';
+import { getBanners, saveBanner, deleteBanner } from '@/lib/storeService.server';
 
 export const dynamic = 'force-dynamic';
 
