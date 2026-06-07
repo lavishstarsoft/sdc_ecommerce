@@ -1,30 +1,28 @@
 import 'server-only';
 
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 const prismaClientSingleton = () => {
-  const dbUrl = typeof process !== 'undefined' ? process.env.DATABASE_URL : undefined;
-  
-  // If DATABASE_URL is missing or empty (mock mode), pass a dummy accelerateUrl.
-  // This satisfies Prisma 7's constructor options and prevents initialization crashes.
+  const dbUrl = process.env.DATABASE_URL;
+
   if (!dbUrl || dbUrl.trim() === '') {
     return new PrismaClient({
-      accelerateUrl: "prisma://accelerate.placeholder.com"
+      accelerateUrl: 'prisma://accelerate.placeholder.com',
     });
   }
 
-  // Client-side guard: do not instantiate pg/PrismaPg in the browser
-  if (typeof window !== 'undefined') {
-    return new PrismaClient({
-      accelerateUrl: "prisma://accelerate.placeholder.com"
-    });
-  }
-  
-  // Load server-only dependencies dynamically using eval('require') so Webpack ignores them during client compilation
-  const { PrismaPg } = eval('require')('@prisma/adapter-pg');
-  const { Pool } = eval('require')('pg');
-  
-  const pool = new Pool({ connectionString: dbUrl });
+  const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+  const hasSslMode = dbUrl.includes('sslmode=');
+
+  const pool = new Pool({
+    connectionString: dbUrl,
+    max: 1,
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 10_000,
+    ...(!isLocal && !hasSslMode ? { ssl: { rejectUnauthorized: false } } : {}),
+  });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 };
@@ -37,4 +35,6 @@ const prisma = globalThis.prisma ?? prismaClientSingleton();
 
 export default prisma;
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma;
+if (!globalThis.prisma) {
+  globalThis.prisma = prisma;
+}

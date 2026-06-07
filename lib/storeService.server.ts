@@ -112,17 +112,13 @@ export const getBanners = async (): Promise<Banner[]> => {
     if (!res.ok) throw new Error('Failed to fetch banners');
     return res.json();
   }
-  if (isPrismaConfigured()) {
-    try {
-      const data = await prisma.banner.findMany({
-        orderBy: { displayOrder: 'asc' }
-      });
-      return data.map(mapBanner);
-    } catch (e) {
-      console.warn('Prisma banner fetch error, falling back:', e);
-    }
+  if (!isPrismaConfigured()) {
+    return typeof window === 'undefined' ? DEFAULT_BANNERS : getLocal<Banner[]>('sdc_banners', DEFAULT_BANNERS);
   }
-  return getLocal<Banner[]>('sdc_banners', DEFAULT_BANNERS);
+  const data = await prisma.banner.findMany({
+    orderBy: { displayOrder: 'asc' },
+  });
+  return data.map(mapBanner);
 };
 
 export const saveBanner = async (banner: Omit<Banner, 'id'> & { id?: string }): Promise<Banner> => {
@@ -214,17 +210,13 @@ export const getProducts = async (): Promise<Product[]> => {
     if (!res.ok) throw new Error('Failed to fetch products');
     return res.json();
   }
-  if (isPrismaConfigured()) {
-    try {
-      const data = await prisma.product.findMany({
-        orderBy: { createdAt: 'desc' }
-      });
-      return data.map(mapProduct);
-    } catch (e) {
-      console.warn('Prisma products fetch error, falling back:', e);
-    }
+  if (!isPrismaConfigured()) {
+    return typeof window === 'undefined' ? DEFAULT_PRODUCTS : getLocal<Product[]>('sdc_products', DEFAULT_PRODUCTS);
   }
-  return getLocal<Product[]>('sdc_products', DEFAULT_PRODUCTS);
+  const data = await prisma.product.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+  return data.map(mapProduct);
 };
 
 export const saveProduct = async (product: Omit<Product, 'id'> & { id?: string }): Promise<Product> => {
@@ -354,17 +346,13 @@ export const getCategoryGrids = async (): Promise<CategoryGrid[]> => {
     if (!res.ok) throw new Error('Failed to fetch category grids');
     return res.json();
   }
-  if (isPrismaConfigured()) {
-    try {
-      const data = await prisma.categoryGrid.findMany({
-        orderBy: { displayOrder: 'asc' }
-      });
-      return data.map(mapCategoryGrid);
-    } catch (e) {
-      console.warn('Prisma category grids fetch error, falling back:', e);
-    }
+  if (!isPrismaConfigured()) {
+    return typeof window === 'undefined' ? DEFAULT_CATEGORY_GRIDS : getLocal<CategoryGrid[]>('sdc_grids', DEFAULT_CATEGORY_GRIDS);
   }
-  return getLocal<CategoryGrid[]>('sdc_grids', DEFAULT_CATEGORY_GRIDS);
+  const data = await prisma.categoryGrid.findMany({
+    orderBy: { displayOrder: 'asc' },
+  });
+  return data.map(mapCategoryGrid);
 };
 
 export const saveCategoryGrid = async (grid: Omit<CategoryGrid, 'id'> & { id?: string }): Promise<CategoryGrid> => {
@@ -456,27 +444,23 @@ export const getSidebarFilters = async (): Promise<SidebarFilter[]> => {
     if (!res.ok) throw new Error('Failed to fetch sidebar filters');
     return res.json();
   }
-  if (isPrismaConfigured()) {
-    try {
-      const data = await prisma.sidebarFilter.findMany({
-        where: { isEnabled: true },
-        orderBy: { displayOrder: 'asc' }
-      });
-      return data.map((f: any) => ({
-        id: f.id,
-        filterType: f.filterType,
-        label: f.label,
-        config: f.config ?? undefined,
-        isEnabled: f.isEnabled,
-        display_order: f.displayOrder,
-        createdAt: f.createdAt?.toISOString?.(),
-        updatedAt: f.updatedAt?.toISOString?.()
-      }));
-    } catch (e) {
-      console.warn('Prisma sidebar filters fetch error, falling back:', e);
-    }
+  if (!isPrismaConfigured()) {
+    return typeof window === 'undefined' ? [] : getLocal<SidebarFilter[]>('sdc_sidebar_filters', []);
   }
-  return getLocal<SidebarFilter[]>('sdc_sidebar_filters', []);
+  const data = await prisma.sidebarFilter.findMany({
+    where: { isEnabled: true },
+    orderBy: { displayOrder: 'asc' },
+  });
+  return data.map((f: any) => ({
+    id: f.id,
+    filterType: f.filterType,
+    label: f.label,
+    config: f.config ?? undefined,
+    isEnabled: f.isEnabled,
+    display_order: f.displayOrder,
+    createdAt: f.createdAt?.toISOString?.(),
+    updatedAt: f.updatedAt?.toISOString?.(),
+  }));
 };
 
 export const saveSidebarFilter = async (filter: Omit<SidebarFilter, 'id'> & { id?: string }): Promise<SidebarFilter> => {
@@ -583,17 +567,13 @@ export const getCarousels = async (): Promise<Carousel[]> => {
     if (!res.ok) throw new Error('Failed to fetch carousels');
     return res.json();
   }
-  if (isPrismaConfigured()) {
-    try {
-      const data = await prisma.carousel.findMany({
-        orderBy: { displayOrder: 'asc' }
-      });
-      return data.map(mapCarousel);
-    } catch (e) {
-      console.warn('Prisma carousels fetch error, falling back:', e);
-    }
+  if (!isPrismaConfigured()) {
+    return typeof window === 'undefined' ? DEFAULT_CAROUSELS : getLocal<Carousel[]>('sdc_carousels', DEFAULT_CAROUSELS);
   }
-  return getLocal<Carousel[]>('sdc_carousels', DEFAULT_CAROUSELS);
+  const data = await prisma.carousel.findMany({
+    orderBy: { displayOrder: 'asc' },
+  });
+  return data.map(mapCarousel);
 };
 
 export const saveCarousel = async (carousel: Omit<Carousel, 'id'> & { id?: string }): Promise<Carousel> => {
@@ -698,66 +678,66 @@ const DEFAULT_SETTINGS: Setting = {
 };
 
 export const getSettings = async (): Promise<Setting> => {
-  if (isPrismaConfigured()) {
-    try {
-      const data = await prisma.setting.findUnique({
-        where: { id: 'default' }
-      });
-      if (data) {
-        return {
-          id: data.id,
-          siteName: data.siteName,
-          logoUrl: data.logoUrl || undefined,
-          metaDescription: data.metaDescription || undefined,
-          googleAnalyticsId: data.googleAnalyticsId || undefined,
-          googleSearchConsoleId: data.googleSearchConsoleId || undefined,
-          googleAdsId: data.googleAdsId || undefined,
-          newsletterTitle: data.newsletterTitle || undefined,
-          newsletterSubtitle: data.newsletterSubtitle || undefined,
-          newsletterPlaceholder: data.newsletterPlaceholder || undefined,
-          newsletterButtonText: data.newsletterButtonText || undefined,
-          newsletterUnsubscribe: data.newsletterUnsubscribe || undefined,
-          newsletterPrivacyText: data.newsletterPrivacyText || undefined
-        };
-      }
-      // Seed default settings row if it doesn't exist
-      const seeded = await prisma.setting.create({
-        data: {
-          id: 'default',
-          siteName: 'Saidurga Computers',
-          logoUrl: '',
-          metaDescription: 'Your trusted partner for all computer sales, services, and accessories. Providing premium tech solutions with dedicated support for over a decade.',
-          googleAnalyticsId: '',
-          googleSearchConsoleId: '',
-          googleAdsId: '',
-          newsletterTitle: 'Subscribe to our newsletter to get updates to our latest collections',
-          newsletterSubtitle: 'Get 20% off on your first order just by subscribing to our newsletter',
-          newsletterPlaceholder: 'Enter your email',
-          newsletterButtonText: 'Subscribe',
-          newsletterUnsubscribe: 'You will be able to unsubscribe at any time.',
-          newsletterPrivacyText: 'Read our privacy policy here'
-        }
-      });
-      return {
-        id: seeded.id,
-        siteName: seeded.siteName,
-        logoUrl: seeded.logoUrl || undefined,
-        metaDescription: seeded.metaDescription || undefined,
-        googleAnalyticsId: seeded.googleAnalyticsId || undefined,
-        googleSearchConsoleId: seeded.googleSearchConsoleId || undefined,
-        googleAdsId: seeded.googleAdsId || undefined,
-        newsletterTitle: seeded.newsletterTitle || undefined,
-        newsletterSubtitle: seeded.newsletterSubtitle || undefined,
-        newsletterPlaceholder: seeded.newsletterPlaceholder || undefined,
-        newsletterButtonText: seeded.newsletterButtonText || undefined,
-        newsletterUnsubscribe: seeded.newsletterUnsubscribe || undefined,
-        newsletterPrivacyText: seeded.newsletterPrivacyText || undefined
-      };
-    } catch (e) {
-      console.warn('Prisma settings fetch error, falling back:', e);
-    }
+  if (!isPrismaConfigured()) {
+    return typeof window === 'undefined' ? DEFAULT_SETTINGS : getLocal<Setting>('sdc_settings', DEFAULT_SETTINGS);
   }
-  return getLocal<Setting>('sdc_settings', DEFAULT_SETTINGS);
+
+  const data = await prisma.setting.findUnique({
+    where: { id: 'default' },
+  });
+
+  if (data) {
+    return {
+      id: data.id,
+      siteName: data.siteName,
+      logoUrl: data.logoUrl || undefined,
+      metaDescription: data.metaDescription || undefined,
+      googleAnalyticsId: data.googleAnalyticsId || undefined,
+      googleSearchConsoleId: data.googleSearchConsoleId || undefined,
+      googleAdsId: data.googleAdsId || undefined,
+      newsletterTitle: data.newsletterTitle || undefined,
+      newsletterSubtitle: data.newsletterSubtitle || undefined,
+      newsletterPlaceholder: data.newsletterPlaceholder || undefined,
+      newsletterButtonText: data.newsletterButtonText || undefined,
+      newsletterUnsubscribe: data.newsletterUnsubscribe || undefined,
+      newsletterPrivacyText: data.newsletterPrivacyText || undefined,
+    };
+  }
+
+  const seeded = await prisma.setting.create({
+    data: {
+      id: 'default',
+      siteName: 'Saidurga Computers',
+      logoUrl: '',
+      metaDescription:
+        'Your trusted partner for all computer sales, services, and accessories. Providing premium tech solutions with dedicated support for over a decade.',
+      googleAnalyticsId: '',
+      googleSearchConsoleId: '',
+      googleAdsId: '',
+      newsletterTitle: 'Subscribe to our newsletter to get updates to our latest collections',
+      newsletterSubtitle: 'Get 20% off on your first order just by subscribing to our newsletter',
+      newsletterPlaceholder: 'Enter your email',
+      newsletterButtonText: 'Subscribe',
+      newsletterUnsubscribe: 'You will be able to unsubscribe at any time.',
+      newsletterPrivacyText: 'Read our privacy policy here',
+    },
+  });
+
+  return {
+    id: seeded.id,
+    siteName: seeded.siteName,
+    logoUrl: seeded.logoUrl || undefined,
+    metaDescription: seeded.metaDescription || undefined,
+    googleAnalyticsId: seeded.googleAnalyticsId || undefined,
+    googleSearchConsoleId: seeded.googleSearchConsoleId || undefined,
+    googleAdsId: seeded.googleAdsId || undefined,
+    newsletterTitle: seeded.newsletterTitle || undefined,
+    newsletterSubtitle: seeded.newsletterSubtitle || undefined,
+    newsletterPlaceholder: seeded.newsletterPlaceholder || undefined,
+    newsletterButtonText: seeded.newsletterButtonText || undefined,
+    newsletterUnsubscribe: seeded.newsletterUnsubscribe || undefined,
+    newsletterPrivacyText: seeded.newsletterPrivacyText || undefined,
+  };
 };
 
 export const saveSettings = async (settings: Omit<Setting, 'id'>): Promise<Setting> => {

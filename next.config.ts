@@ -2,6 +2,8 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Only externalize @prisma/client; adapter-pg + pg must be bundled for Vercel serverless.
+  serverExternalPackages: ['@prisma/client'],
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -31,7 +33,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'standalone',
   transpilePackages: ['motion'],
   webpack: (config, {dev, isServer}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.

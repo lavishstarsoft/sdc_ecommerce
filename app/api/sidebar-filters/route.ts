@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { isPrismaConfigured } from '@/lib/store-types';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    if (!isPrismaConfigured()) {
+      return NextResponse.json([]);
+    }
+
     const { searchParams } = new URL(request.url);
     const filterType = searchParams.get('filterType');
     const enabledOnly = searchParams.get('enabledOnly') === 'true';
