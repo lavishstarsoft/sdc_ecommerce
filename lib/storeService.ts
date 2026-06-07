@@ -11,9 +11,10 @@ export type {
 export { getDeliveryChargeForQuantity, isPrismaConfigured } from './store-types';
 
 import type { Banner, Carousel, CategoryGrid, Product, Setting, SidebarFilter } from './store-types';
+import { fetchWithRetry } from './fetchWithRetry';
 
 export const getBanners = async (): Promise<Banner[]> => {
-  const res = await fetch('/api/banners', { cache: 'no-store' });
+  const res = await fetchWithRetry('/api/banners');
   if (!res.ok) throw new Error('Failed to fetch banners');
   return res.json();
 };
@@ -45,7 +46,7 @@ export const deleteBanner = async (id: string): Promise<boolean> => {
 };
 
 export const getProducts = async (): Promise<Product[]> => {
-  const res = await fetch('/api/products', { cache: 'no-store' });
+  const res = await fetchWithRetry('/api/products');
   if (!res.ok) throw new Error('Failed to fetch products');
   return res.json();
 };
@@ -77,7 +78,7 @@ export const deleteProduct = async (id: string): Promise<boolean> => {
 };
 
 export const getCategoryGrids = async (): Promise<CategoryGrid[]> => {
-  const res = await fetch('/api/category-grids', { cache: 'no-store' });
+  const res = await fetchWithRetry('/api/category-grids');
   if (!res.ok) throw new Error('Failed to fetch category grids');
   return res.json();
 };
@@ -111,7 +112,7 @@ export const deleteCategoryGrid = async (id: string): Promise<boolean> => {
 };
 
 export const getSidebarFilters = async (): Promise<SidebarFilter[]> => {
-  const res = await fetch('/api/sidebar-filters?enabledOnly=true', { cache: 'no-store' });
+  const res = await fetchWithRetry('/api/sidebar-filters?enabledOnly=true');
   if (!res.ok) throw new Error('Failed to fetch sidebar filters');
   return res.json();
 };
@@ -145,7 +146,7 @@ export const deleteSidebarFilter = async (id: string): Promise<boolean> => {
 };
 
 export const getCarousels = async (): Promise<Carousel[]> => {
-  const res = await fetch('/api/carousels', { cache: 'no-store' });
+  const res = await fetchWithRetry('/api/carousels');
   if (!res.ok) throw new Error('Failed to fetch carousels');
   return res.json();
 };
@@ -179,7 +180,7 @@ export const deleteCarousel = async (id: string): Promise<boolean> => {
 };
 
 export const getSettings = async (): Promise<Setting> => {
-  const res = await fetch('/api/settings', { cache: 'no-store' });
+  const res = await fetchWithRetry('/api/settings');
   if (!res.ok) throw new Error('Failed to fetch settings');
   return res.json();
 };

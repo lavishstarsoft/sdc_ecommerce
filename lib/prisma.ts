@@ -20,7 +20,7 @@ const prismaClientSingleton = () => {
     connectionString: dbUrl,
     max: 1,
     idleTimeoutMillis: 20_000,
-    connectionTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 20_000,
     ...(!isLocal && !hasSslMode ? { ssl: { rejectUnauthorized: false } } : {}),
   });
   const adapter = new PrismaPg(pool);

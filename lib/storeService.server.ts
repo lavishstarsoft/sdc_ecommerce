@@ -1,6 +1,7 @@
 import 'server-only';
 
 import prisma from './prisma';
+import { withDbRetry } from './dbRetry';
 import {
   type Banner,
   type Carousel,
@@ -115,9 +116,11 @@ export const getBanners = async (): Promise<Banner[]> => {
   if (!isPrismaConfigured()) {
     return typeof window === 'undefined' ? DEFAULT_BANNERS : getLocal<Banner[]>('sdc_banners', DEFAULT_BANNERS);
   }
-  const data = await prisma.banner.findMany({
-    orderBy: { displayOrder: 'asc' },
-  });
+  const data = await withDbRetry(() =>
+    prisma.banner.findMany({
+      orderBy: { displayOrder: 'asc' },
+    })
+  );
   return data.map(mapBanner);
 };
 
@@ -213,9 +216,11 @@ export const getProducts = async (): Promise<Product[]> => {
   if (!isPrismaConfigured()) {
     return typeof window === 'undefined' ? DEFAULT_PRODUCTS : getLocal<Product[]>('sdc_products', DEFAULT_PRODUCTS);
   }
-  const data = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  const data = await withDbRetry(() =>
+    prisma.product.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  );
   return data.map(mapProduct);
 };
 
@@ -349,9 +354,11 @@ export const getCategoryGrids = async (): Promise<CategoryGrid[]> => {
   if (!isPrismaConfigured()) {
     return typeof window === 'undefined' ? DEFAULT_CATEGORY_GRIDS : getLocal<CategoryGrid[]>('sdc_grids', DEFAULT_CATEGORY_GRIDS);
   }
-  const data = await prisma.categoryGrid.findMany({
-    orderBy: { displayOrder: 'asc' },
-  });
+  const data = await withDbRetry(() =>
+    prisma.categoryGrid.findMany({
+      orderBy: { displayOrder: 'asc' },
+    })
+  );
   return data.map(mapCategoryGrid);
 };
 
@@ -447,10 +454,12 @@ export const getSidebarFilters = async (): Promise<SidebarFilter[]> => {
   if (!isPrismaConfigured()) {
     return typeof window === 'undefined' ? [] : getLocal<SidebarFilter[]>('sdc_sidebar_filters', []);
   }
-  const data = await prisma.sidebarFilter.findMany({
-    where: { isEnabled: true },
-    orderBy: { displayOrder: 'asc' },
-  });
+  const data = await withDbRetry(() =>
+    prisma.sidebarFilter.findMany({
+      where: { isEnabled: true },
+      orderBy: { displayOrder: 'asc' },
+    })
+  );
   return data.map((f: any) => ({
     id: f.id,
     filterType: f.filterType,
@@ -570,9 +579,11 @@ export const getCarousels = async (): Promise<Carousel[]> => {
   if (!isPrismaConfigured()) {
     return typeof window === 'undefined' ? DEFAULT_CAROUSELS : getLocal<Carousel[]>('sdc_carousels', DEFAULT_CAROUSELS);
   }
-  const data = await prisma.carousel.findMany({
-    orderBy: { displayOrder: 'asc' },
-  });
+  const data = await withDbRetry(() =>
+    prisma.carousel.findMany({
+      orderBy: { displayOrder: 'asc' },
+    })
+  );
   return data.map(mapCarousel);
 };
 
@@ -682,9 +693,11 @@ export const getSettings = async (): Promise<Setting> => {
     return typeof window === 'undefined' ? DEFAULT_SETTINGS : getLocal<Setting>('sdc_settings', DEFAULT_SETTINGS);
   }
 
-  const data = await prisma.setting.findUnique({
-    where: { id: 'default' },
-  });
+  const data = await withDbRetry(() =>
+    prisma.setting.findUnique({
+      where: { id: 'default' },
+    })
+  );
 
   if (data) {
     return {
@@ -704,10 +717,11 @@ export const getSettings = async (): Promise<Setting> => {
     };
   }
 
-  const seeded = await prisma.setting.create({
-    data: {
-      id: 'default',
-      siteName: 'Saidurga Computers',
+  const seeded = await withDbRetry(() =>
+    prisma.setting.create({
+      data: {
+        id: 'default',
+        siteName: 'Saidurga Computers',
       logoUrl: '',
       metaDescription:
         'Your trusted partner for all computer sales, services, and accessories. Providing premium tech solutions with dedicated support for over a decade.',
@@ -720,8 +734,9 @@ export const getSettings = async (): Promise<Setting> => {
       newsletterButtonText: 'Subscribe',
       newsletterUnsubscribe: 'You will be able to unsubscribe at any time.',
       newsletterPrivacyText: 'Read our privacy policy here',
-    },
-  });
+      },
+    })
+  );
 
   return {
     id: seeded.id,

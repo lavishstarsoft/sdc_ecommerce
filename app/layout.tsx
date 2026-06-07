@@ -1,7 +1,19 @@
 import type { Metadata } from 'next';
 import { getSettings } from '@/lib/storeService.server';
+import { StoreSettingsProvider } from '@/components/StoreSettingsProvider';
+import type { Setting } from '@/lib/store-types';
 import Script from 'next/script';
 import './globals.css';
+
+export const dynamic = 'force-dynamic';
+
+const FALLBACK_SETTINGS: Setting = {
+  id: 'default',
+  siteName: 'Saidurga Computers',
+  logoUrl: '',
+  metaDescription:
+    'Your trusted partner for all computer sales, services, and accessories.',
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -25,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
-  let settings;
+  let settings: Setting = FALLBACK_SETTINGS;
   try {
     settings = await getSettings();
   } catch (e) {
@@ -35,7 +47,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   return (
     <html lang="en">
       <head>
-        {settings?.googleAnalyticsId && (
+        {settings.googleAnalyticsId && (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${settings.googleAnalyticsId}`}
@@ -51,7 +63,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             </Script>
           </>
         )}
-        {settings?.googleAdsId && (
+        {settings.googleAdsId && (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${settings.googleAdsId}`}
@@ -68,7 +80,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           </>
         )}
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <StoreSettingsProvider settings={settings}>{children}</StoreSettingsProvider>
+      </body>
     </html>
   );
 }

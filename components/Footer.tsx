@@ -1,35 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, Globe } from 'lucide-react';
-import { getSettings, Setting } from '@/lib/storeService';
-import { isSupabaseConfigured } from '@/lib/supabase';
+import { useStoreSettings } from '@/components/StoreSettingsProvider';
 
 export default function Footer() {
-  const [settings, setSettings] = useState<Setting>({
-    id: "default",
-    siteName: "Saidurga Computers",
-    logoUrl: ""
+  const settings = useStoreSettings({
+    id: 'default',
+    siteName: 'Saidurga Computers',
+    logoUrl: '',
   });
-
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        if (isSupabaseConfigured()) {
-          const res = await fetch("/api/settings", { cache: "no-store" });
-          if (res.ok) {
-            const data = await res.json();
-            setSettings(data);
-            return;
-          }
-        }
-        const data = await getSettings();
-        setSettings(data);
-      } catch (err) {
-        console.error("Failed to load footer settings:", err);
-      }
-    }
-    loadSettings();
-  }, []);
 
   const getTextLogoDetails = (name: string) => {
     const normalized = name.trim();

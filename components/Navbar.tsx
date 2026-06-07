@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Search, ShoppingCart, MapPin, Menu, User, Mic, LogOut, ChevronDown, Heart, X } from "lucide-react";
-import { getSettings, Setting } from "@/lib/storeService";
-import { isSupabaseConfigured } from "@/lib/supabase";
+import { useStoreSettings } from "@/components/StoreSettingsProvider";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -15,10 +14,10 @@ export default function Navbar() {
   const [allCategories, setAllCategories] = useState<{ id: string; name: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [settings, setSettings] = useState<Setting>({
+  const settings = useStoreSettings({
     id: "default",
     siteName: "Saidurga Computers",
-    logoUrl: ""
+    logoUrl: "",
   });
 
   // Watch for wishlist updates in localStorage
@@ -146,26 +145,6 @@ export default function Navbar() {
       console.error("Failed to logout:", err);
     }
   };
-
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        if (isSupabaseConfigured()) {
-          const res = await fetch("/api/settings", { cache: "no-store" });
-          if (res.ok) {
-            const data = await res.json();
-            setSettings(data);
-            return;
-          }
-        }
-        const data = await getSettings();
-        setSettings(data);
-      } catch (err) {
-        console.error("Failed to load navbar settings:", err);
-      }
-    }
-    loadSettings();
-  }, []);
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
