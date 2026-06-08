@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Search, ShoppingCart, MapPin, Menu, User, Mic, LogOut, ChevronDown, Heart, X } from "lucide-react";
 import { useStoreSettings } from "@/components/StoreSettingsProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function Navbar() {
+function NavbarInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams ? searchParams.get("category") : null;
   const [user, setUser] = useState<{ id: string; name: string; email: string } | null>(null);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
@@ -336,7 +338,7 @@ export default function Navbar() {
       <div className="hidden md:flex bg-[#1c232c] text-white items-center px-4 py-1 gap-4 text-sm">
         <button 
           onClick={() => router.push("/")}
-          className="flex items-center gap-1 font-bold px-1 py-1 border border-transparent rounded-sm hover:text-[#5ab946] transition-colors cursor-pointer"
+          className={`flex items-center gap-1 px-1 py-1 transition-colors cursor-pointer ${!currentCategory ? "text-[#5ab946] font-bold" : "hover:text-[#5ab946] font-medium"}`}
         >
           Home
         </button>
@@ -346,15 +348,18 @@ export default function Navbar() {
           { id: "3", name: "Hot Accessories" },
           { id: "4", name: "Printers & CCTV" },
           { id: "5", name: "Quick Service Desk" }
-        ]).map((cat, idx) => (
+        ]).map((cat) => {
+          const isActive = currentCategory === cat.name;
+          return (
           <span 
             key={cat.id} 
             onClick={() => router.push(`/?category=${encodeURIComponent(cat.name)}`)}
-            className={`cursor-pointer px-1 py-1 border border-transparent rounded-sm hover:text-[#5ab946] transition-colors ${idx === 0 ? "text-[#5ab946] font-bold" : ""}`}
+            className={`cursor-pointer px-1 py-1 transition-colors ${isActive ? "text-[#5ab946] font-bold" : "hover:text-[#5ab946] font-medium"}`}
           >
             {cat.name}
           </span>
-        ))}
+          );
+        })}
       </div>
 
       {/* --- MOBILE VIEW (Native App Feel) --- */}
@@ -469,21 +474,30 @@ export default function Navbar() {
       
       {/* Category Strip (Mobile) */}
       <div className="flex md:hidden bg-[#f3f4f6] text-black items-center px-4 py-2.5 gap-6 text-sm overflow-x-auto whitespace-nowrap hide-scrollbar shadow-sm border-b border-gray-200">
+        <span 
+          onClick={() => router.push("/")}
+          className={`cursor-pointer pb-1 transition-colors ${!currentCategory ? "text-[#5ab946] font-bold" : "font-medium hover:text-[#e61923]"}`}
+        >
+          Home
+        </span>
         {(menuCategories.length > 0 ? menuCategories : [
           { id: "1", name: "Laptops" },
           { id: "2", name: "Component Parts" },
           { id: "3", name: "Hot Accessories" },
           { id: "4", name: "Printers & CCTV" },
           { id: "5", name: "Quick Service Desk" }
-        ]).map((cat, idx) => (
+        ]).map((cat) => {
+          const isActive = currentCategory === cat.name;
+          return (
           <span 
             key={cat.id}
             onClick={() => router.push(`/?category=${encodeURIComponent(cat.name)}`)}
-            className={`cursor-pointer font-medium hover:text-[#e61923] transition-colors ${idx === 0 ? "text-[#5ab946] font-bold" : ""}`}
+            className={`cursor-pointer pb-1 transition-colors ${isActive ? "text-[#5ab946] font-bold" : "font-medium hover:text-[#e61923]"}`}
           >
             {cat.name}
           </span>
-        ))}
+          );
+        })}
       </div>
     </header>
 
@@ -503,24 +517,36 @@ export default function Navbar() {
             </div>
             
             <div className="flex flex-col gap-4">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  router.push("/");
+                }}
+                className={`w-full text-left py-2.5 px-3 text-sm rounded-xl transition-all cursor-pointer ${!currentCategory ? "bg-gray-800 text-[#5ab946] font-bold" : "font-semibold hover:bg-gray-850 hover:text-[#5ab946]"}`}
+              >
+                Home
+              </button>
               {(allCategories.length > 0 ? allCategories : [
                 { id: "1", name: "Laptops" },
                 { id: "2", name: "Component Parts" },
                 { id: "3", name: "Hot Accessories" },
                 { id: "4", name: "Printers & CCTV" },
                 { id: "5", name: "Quick Service Desk" }
-              ]).map((cat) => (
+              ]).map((cat) => {
+                const isActive = currentCategory === cat.name;
+                return (
                 <button
                   key={cat.id}
                   onClick={() => {
                     setMobileMenuOpen(false);
                     router.push(`/?category=${encodeURIComponent(cat.name)}`);
                   }}
-                  className="w-full text-left py-2.5 px-3 text-sm font-semibold hover:bg-gray-850 hover:text-[#5ab946] rounded-xl transition-all cursor-pointer"
+                  className={`w-full text-left py-2.5 px-3 text-sm rounded-xl transition-all cursor-pointer ${isActive ? "bg-gray-800 text-[#5ab946] font-bold" : "font-semibold hover:bg-gray-850 hover:text-[#5ab946]"}`}
                 >
                   {cat.name}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -547,5 +573,13 @@ export default function Navbar() {
         }
       `}} />
     </>
+  );
+}
+
+export default function Navbar() {
+  return (
+    <React.Suspense fallback={<header className="w-full h-[120px] md:h-[100px] bg-[#111820] sticky top-0 z-[1000]" />}>
+      <NavbarInner />
+    </React.Suspense>
   );
 }
