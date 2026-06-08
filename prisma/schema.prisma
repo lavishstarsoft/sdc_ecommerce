@@ -214,4 +214,12 @@ model OrderItem {
   @@map("order_items")
 }
 
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
+}
+
 

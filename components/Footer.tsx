@@ -1,9 +1,15 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, Globe } from 'lucide-react';
 import { useStoreSettings } from '@/components/StoreSettingsProvider';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
   const settings = useStoreSettings({
     id: 'default',
     siteName: 'Saidurga Computers',
@@ -37,6 +43,39 @@ export default function Footer() {
   };
 
   const logoDetails = getTextLogoDetails(settings.siteName);
+
+  const handleSubscribe = async () => {
+    if (!email || !email.includes('@')) {
+      setStatus('error');
+      setMessage('Please enter a valid email address');
+      return;
+    }
+    
+    setStatus('loading');
+    setMessage('');
+    
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setStatus('success');
+        setMessage(data.message || 'Subscribed successfully!');
+        setEmail('');
+      } else {
+        setStatus('error');
+        setMessage(data.error || 'Failed to subscribe');
+      }
+    } catch (err) {
+      setStatus('error');
+      setMessage('An error occurred. Please try again later.');
+    }
+  };
 
   return (
     <footer className="w-full mt-16 font-sans relative">
@@ -81,12 +120,26 @@ export default function Footer() {
               <input 
                 type="email" 
                 placeholder={settings.newsletterPlaceholder || "Enter your email"} 
-                className="flex-1 bg-transparent px-3 py-2 text-white placeholder:text-white/80 outline-none text-sm md:text-base w-full" 
+                className="flex-1 bg-transparent px-3 py-2 text-white placeholder:text-white/80 outline-none text-sm md:text-base w-full disabled:opacity-50" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
+                disabled={status === 'loading'}
               />
-              <button className="bg-white text-[#5ab946] font-bold px-4 md:px-6 py-2 rounded-full hover:bg-gray-50 transition-colors text-sm md:text-base">
-                {settings.newsletterButtonText || "Subscribe"}
+              <button 
+                className="bg-white text-[#5ab946] font-bold px-4 md:px-6 py-2 rounded-full hover:bg-gray-50 transition-colors text-sm md:text-base disabled:opacity-50 flex items-center justify-center min-w-[100px]"
+                onClick={handleSubscribe}
+                disabled={status === 'loading'}
+              >
+                {status === 'loading' ? '...' : (settings.newsletterButtonText || "Subscribe")}
               </button>
             </div>
+            
+            {message && (
+              <p className={`mt-3 text-sm font-medium ${status === 'success' ? 'text-green-100' : 'text-red-200'}`}>
+                {message}
+              </p>
+            )}
             
             <p className="mt-4 text-xs text-white/80">
               {settings.newsletterUnsubscribe || "You will be able to unsubscribe at any time."}<br/>

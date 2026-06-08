@@ -17,7 +17,8 @@ import {
   LogOut,
   Settings,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Mail
 } from "lucide-react";
 
 import { Suspense } from "react";
@@ -85,6 +86,7 @@ function AdminLayoutInner({
     { name: "Products", href: "/admin/products", icon: ShoppingBag },
     { name: "Orders", href: "/admin/orders", icon: ClipboardList },
     { name: "Banners", href: "/admin/banners", icon: ImageIcon },
+    { name: "Subscribers", href: "/admin/newsletter", icon: Mail },
   ];
 
   const categorySubItems = [
